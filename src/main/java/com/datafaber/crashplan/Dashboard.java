@@ -5,6 +5,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.GetRequest;
+import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import org.joda.time.format.DateTimeFormat;
@@ -59,18 +60,25 @@ public class Dashboard {
 
     // specify the external location for static files by looking at the "statics.base" system property
     String staticsBaseDir = System.getProperty(STATICS_BASE_DIR, "");
-    staticFiles.externalLocation(staticsBaseDir);
+    if (!"".equals(staticsBaseDir)) {
+      staticFiles.externalLocation(staticsBaseDir);
+    }
 
     // initialize Freemarker to render the template
+    // use a file template loader if the "statics.base" system property exists, use a classpath template loader instead
     FreeMarkerEngine freeMarkerEngine = new FreeMarkerEngine();
     Configuration freeMarkerConfiguration = new Configuration();
-    String templatesDir = staticsBaseDir + File.separator + "templates";
-    try {
-      freeMarkerConfiguration.setTemplateLoader(new FileTemplateLoader(new File(templatesDir)));
-      freeMarkerConfiguration.setTemplateUpdateDelay(0);
-    } catch (IOException ioe) {
-      mLogger.error(ctx + "could not configure Freemarker template loader for directory " + templatesDir, ioe);
-      throw new Exception(ioe);
+    if ("".equals(staticsBaseDir)) {
+      freeMarkerConfiguration.setTemplateLoader(new ClassTemplateLoader(Dashboard.class, "/"));
+    } else {
+      String templatesDir = staticsBaseDir + File.separator + "templates";
+      try {
+        freeMarkerConfiguration.setTemplateLoader(new FileTemplateLoader(new File(templatesDir)));
+        freeMarkerConfiguration.setTemplateUpdateDelay(0);
+      } catch (IOException ioe) {
+        mLogger.error(ctx + "could not configure Freemarker template loader for directory " + templatesDir, ioe);
+        throw new Exception(ioe);
+      }
     }
     freeMarkerConfiguration.setObjectWrapper(new JodaAwareObjectWrapper());
     freeMarkerEngine.setConfiguration(freeMarkerConfiguration);
