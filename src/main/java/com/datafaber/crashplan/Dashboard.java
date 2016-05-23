@@ -45,7 +45,8 @@ public class Dashboard {
   // formatting of bytes
   private static final String FORMAT_HUMAN_READABLE = "h";
   private static final String FORMAT_RAW = "r";
-  private static final long ONE_MB = 1024L * 1024L;
+  private static final long ONE_KB = 1024L;
+  private static final long ONE_MB = 1024L * ONE_KB;
   private static final long ONE_GB = 1024L * ONE_MB;
 
   // logger
@@ -61,7 +62,9 @@ public class Dashboard {
     // specify the external location for static files by looking at the "statics.base" system property
     String staticsBaseDir = System.getProperty(STATICS_BASE_DIR, "");
     if (!"".equals(staticsBaseDir)) {
-      staticFiles.externalLocation(staticsBaseDir);
+      staticFiles.externalLocation(staticsBaseDir + "/statics");
+    } else {
+      staticFiles.location("/statics");
     }
 
     // initialize Freemarker to render the template
@@ -69,7 +72,7 @@ public class Dashboard {
     FreeMarkerEngine freeMarkerEngine = new FreeMarkerEngine();
     Configuration freeMarkerConfiguration = new Configuration();
     if ("".equals(staticsBaseDir)) {
-      freeMarkerConfiguration.setTemplateLoader(new ClassTemplateLoader(Dashboard.class, "/"));
+      freeMarkerConfiguration.setTemplateLoader(new ClassTemplateLoader(Dashboard.class, "/templates"));
     } else {
       String templatesDir = staticsBaseDir + File.separator + "templates";
       try {
@@ -190,6 +193,9 @@ public class Dashboard {
     }
     if (pVal >= ONE_MB) {
       return String.valueOf(NumberFormat.getInstance().format(pVal / ONE_MB)) + " MB";
+    }
+    if (pVal >= ONE_KB) {
+      return String.valueOf(NumberFormat.getInstance().format(pVal / ONE_KB)) + "KB";
     }
     return String.valueOf(pVal);
   }

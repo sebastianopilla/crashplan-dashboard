@@ -2,10 +2,10 @@
 <html>
 <head>
   <title>Backup Usage Report ${.now?string["yyyy-MM-dd HH:mm:ss"]}</title>
-  <script src="js/jquery-2.2.3.min.js"></script>
-  <script src="js/kickstart.js"></script>
-  <link rel="stylesheet" href="css/kickstart.css" media="all" />
-  <link rel="stylesheet" href="css/style.css" media="all" />
+  <script src="/js/jquery-2.2.3.min.js"></script>
+  <script src="/js/kickstart.js"></script>
+  <link rel="stylesheet" href="/css/kickstart.css" media="all" />
+  <link rel="stylesheet" href="/css/style.css" media="all" />
 </head>
 <body>
 <h2>Backup Usage Report ${.now?string["yyyy-MM-dd HH:mm:ss"]}</h2>
