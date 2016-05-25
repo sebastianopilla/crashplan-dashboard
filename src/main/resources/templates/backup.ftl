@@ -6,6 +6,7 @@
   <script src="/js/kickstart.js"></script>
   <link rel="stylesheet" href="/css/kickstart.css" media="all" />
   <link rel="stylesheet" href="/css/style.css" media="all" />
+  <meta http-equiv="refresh" content="${refresh?string["0"]}">
 </head>
 <body>
 <h2>Backup Usage Report ${.now?string["yyyy-MM-dd HH:mm:ss"]}</h2>

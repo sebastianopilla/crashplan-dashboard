@@ -49,6 +49,10 @@ public class Dashboard {
   private static final long ONE_MB = 1024L * ONE_KB;
   private static final long ONE_GB = 1024L * ONE_MB;
 
+  // minimum and maximum refresh frequency, in seconds
+  private static final int MIN_REFRESH_SECONDS = 60;
+  private static final int MAX_REFRESH_SECONDS = 120 * 60;
+
   // logger
   private static final Logger mLogger = LoggerFactory.getLogger(Dashboard.class);
 
@@ -126,11 +130,40 @@ public class Dashboard {
         Map<String,List<ComputerTargetData>> usageData = extractUsageData(cpdata.getData(), pRequest.queryParams("format"));
         Map<String,Object> templateData = new HashMap<>();
         templateData.put("usageData", usageData);
+        checkRefresh(pRequest.queryParams("refresh"), templateData);
         return freeMarkerEngine.render(new ModelAndView(templateData, "backup.ftl"));
       }
     });
 
   } // end main
+
+
+  /**
+   * Add a refresh frequence (in minutes) to the given template data if the parameter is a numerical value within the bounds
+   * @param pRefreshParam refresh frequency (in minutes) from the request parameters
+   * @param pTemplateData freemarker template data
+   */
+  private static void checkRefresh (String pRefreshParam, Map<String,Object> pTemplateData) {
+    if (pTemplateData == null) {
+      return;
+    }
+    if (pRefreshParam == null || "".equals(pRefreshParam)) {
+      pTemplateData.put("refresh", MAX_REFRESH_SECONDS);
+    }
+    try {
+      // convert the refresh parameter (in minutes) to the value for the META HTML tag (in seconds)
+      int refreshParam = Integer.parseInt(pRefreshParam) * 60;
+      if (refreshParam > MAX_REFRESH_SECONDS) {
+        refreshParam = MAX_REFRESH_SECONDS;
+      } else if (refreshParam < MIN_REFRESH_SECONDS) {
+        refreshParam = MIN_REFRESH_SECONDS;
+      }
+      pTemplateData.put("refresh", refreshParam);
+    } catch (NumberFormatException nfe) {
+      // if the given frequency is invalid, we'll just put the max value in
+      pTemplateData.put("refresh", MAX_REFRESH_SECONDS);
+    }
+  }
 
 
   /**
