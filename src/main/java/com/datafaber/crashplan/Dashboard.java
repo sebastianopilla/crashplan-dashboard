@@ -8,6 +8,7 @@ import com.mashape.unirest.request.GetRequest;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
+import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -20,9 +21,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.*;
 
-import static spark.Spark.before;
-import static spark.Spark.get;
-import static spark.Spark.staticFiles;
+import static spark.Spark.*;
 
 /**
  * Main application class
@@ -41,6 +40,9 @@ public class Dashboard {
 
   // names of system properties
   private static final String STATICS_BASE_DIR = "statics.baseDir";
+
+  // alternate port to use
+  private static final String PORT = "port";
 
   // formatting of bytes
   private static final String FORMAT_HUMAN_READABLE = "h";
@@ -62,6 +64,17 @@ public class Dashboard {
    */
   public static void main (String[] pArgs) throws Exception {
     String ctx = "main - ";
+
+    // check if we need to bind on a port other than the default (4567)
+    String listenPortStr = System.getProperty(PORT);
+    if (!"".equals(listenPortStr)) {
+      try {
+        int listenPort = Integer.parseInt(listenPortStr);
+        port(listenPort);
+      } catch (NumberFormatException nfe) {
+        // don't do anything, just let Spark bind to its default port
+      }
+    }
 
     // specify the external location for static files by looking at the "statics.base" system property
     String staticsBaseDir = System.getProperty(STATICS_BASE_DIR, "");
